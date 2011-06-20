@@ -12,7 +12,7 @@ module Sunspot
     # types that Sunspot needs, whether or not they were preexisting, so that
     # users can modify the resulting schema without unwittingly breaking it.
     #
-    class SchemaBuilder
+    class  SchemaBuilder
       include TaskHelper
 
       CONFIG_PATH = File.join(

@@ -354,6 +354,31 @@ module Sunspot
       end
     end
 
+    #
+    # The Payload type encodes a value with a weight separated by a delimited.
+    # ==== Example
+    #
+    #   Sunspot.setup(Post) do
+    #     payload :cars do
+    #       cars.name + "|" cars.weight
+    #     end
+    #   end
+    #
+    class PayloadType < AbstractType
+
+      def indexed_name(name) #:nodoc:
+        "#{name}_p"
+      end
+
+      def to_indexed(value) #:nodoc:
+        value.to_s if value
+      end
+
+      def cast(string) #:nodoc:
+        string
+      end
+    end
+
     class ClassType < AbstractType
       def indexed_name(name) #:nodoc:
         'class_name'

@@ -30,12 +30,14 @@ namespace :sunspot do
         Rake::Task[:"sunspot:solr:stop"].execute
       rescue Sunspot::Rails::Server::NotRunningError => e
         puts e.message
-        puts "No stopping any server"
+        puts "No server to stop."
       ensure
-        puts "Starting server..."
+        print "Starting server..."
         Rake::Task[:"sunspot:solr:start"].execute
-        puts "Indexing server..."
+        puts "done"
+        print "Indexing server..."
         Rake::Task[:"sunspot:reindex"].execute
+        puts "done"
       end
     end
   end

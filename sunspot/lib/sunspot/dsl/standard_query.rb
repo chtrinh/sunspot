@@ -116,6 +116,48 @@ module Sunspot
         # else
         super
       end
+
+      # A simple payload extension, uses its own request handlers. Does NOT use the default dismax
+      # handler that sunspot is shipped with. The default payload request handler is a solr extension
+      # and be located here solr/lib/payload.jar.
+      #
+      # Payload queries use a BooleanTermQuery(see solr API), checking each doc's field against
+      # the query it is supplied with. In addition weights/boost can be supplied with the query using
+      # the standard syntax of ^ to denote a boost.
+      # See solr/src/payload*.java for more implementation details.
+      #
+      # TODO: extend capabilties of payloads; nested levels of payloads, inclusion into Dismax handler.
+      #
+      # ==== Parameters
+      #
+      # field_name<String>:: name of payload field to search against.
+      #
+      # ==== Options
+      #
+      # :request_handler<String>::
+      #   Name of the request handler to use, specified in your solr/solrconfig.xml,
+      #   should be able to handle payload queries
+      # :query<String>::
+      #   Values to search the payload fields against, values can have weights or boost appended to
+      #
+      #
+      def payload(field_name, options)
+        raise(ArgumentError, ":request_handler needs to be specified") unless options.has_key?(:request_handler)
+        raise(ArgumentError, ":query needs to be specified") unless options.has_key?(:query)
+
+        indexed_field_name = @setup.field(field_name).indexed_name
+        query = options[:query].is_a?(Array) ? options[:query].map {|v| "#{indexed_field_name}:#{v}" }.join(" ") :
+          "#{indexed_field_name}:" + options[:query].strip.gsub(/\s+/, " #{indexed_field_name}:")
+
+        @search.request_handler = options[:request_handler]
+
+        @query.solr_parameter_adjustment = Proc.new do |params|
+          params[:q] = query
+          params[:fl] = "id, score"
+        end
+      end
+
+
     end
   end
 end
