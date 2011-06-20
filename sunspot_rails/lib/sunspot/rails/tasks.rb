@@ -21,7 +21,23 @@ namespace :sunspot do
       Sunspot::Rails::Server.new.stop
     end
 
+    desc "Alias to sunspot:reindex"
     task :reindex => :"sunspot:reindex"
+
+    desc "Stop/Start/Reindex solr all in one shot"
+    task :reboot => :environment do
+      begin
+        Rake::Task[:"sunspot:solr:stop"].execute
+      rescue Sunspot::Rails::Server::NotRunningError => e
+        puts e.message
+        puts "No stopping any server"
+      ensure
+        puts "Starting server..."
+        Rake::Task[:"sunspot:solr:start"].execute
+        puts "Indexing server..."
+        Rake::Task[:"sunspot:reindex"].execute
+      end
+    end
   end
 
   desc "Reindex all solr models that are located in your application's models directory."
