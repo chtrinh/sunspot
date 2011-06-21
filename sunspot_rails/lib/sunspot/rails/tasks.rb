@@ -35,10 +35,13 @@ namespace :sunspot do
         print "Starting server..."
         Rake::Task[:"sunspot:solr:start"].execute
         puts "done"
-        print "Indexing server..."
-        Rake::Task[:"sunspot:reindex"].execute
-        puts "done"
       end
+
+# For some reason this rake task doesn't work, probably need to pass it some ENV variable
+#        print "Indexing server..."
+#        Rake::Task[:"sunspot:solr:reindex"].invoke
+#        puts "done"
+
     end
   end
 
