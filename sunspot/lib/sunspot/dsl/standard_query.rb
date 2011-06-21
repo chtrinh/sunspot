@@ -156,8 +156,6 @@ module Sunspot
           params[:fl] = "id, score"
         end
       end
-
-
     end
   end
 end

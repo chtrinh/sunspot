@@ -466,7 +466,8 @@
    -->
   <requestHandler name="dismax" class="solr.SearchHandler">
     <lst name="defaults">
-      <str name="defType">dismax</str>
+       <str name="defType">dismax</str>
+      <!--<str name="defType">payload</str>-->
       <str name="echoParams">explicit</str>
       <float name="tie">0.01</float>
       <str name="qf">
@@ -486,6 +487,8 @@
      </str>
       <int name="ps">100</int>
       <str name="q.alt">*:*</str>
+      <!-- plf : comma separated list of field names -->
+      <str name="plf">payloads</str>
       <!-- example highlighter config, enable per-query with hl=true -->
       <str name="hl.fl">text features name</str>
       <!-- for this field, we want no fragmenting, just highlighting -->
@@ -918,6 +921,14 @@
   <!-- example of registering a custom function parser 
   <valueSourceParser name="myfunc" class="com.mycompany.MyValueSourceParser" />
   -->
+  <!-- Request Handler to do payload queries -->
+  <queryParser name="payloadQueryParser" 
+    class="org.apache.solr.search.ext.PayloadQParserPlugin"/>
+  <requestHandler id="sunspot-payload" name="/browse-assets" class="solr.SearchHandler" >
+    <lst name="defaults">
+      <str name="defType">payloadQueryParser</str>
+    </lst>
+  </requestHandler>
   <!-- config for the admin interface -->
   <admin>
     <defaultQuery>solr</defaultQuery>

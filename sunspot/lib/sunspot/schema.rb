@@ -24,7 +24,7 @@ module Sunspot
       FieldType.new('tint', 'TrieInteger', 'it'),
       FieldType.new('tfloat', 'TrieFloat', 'ft'),
       FieldType.new('tdate', 'TrieInt', 'dt')
-
+      FieldType.new('payloads', 'Payload', 'p')
     ]
 
     FIELD_VARIANTS = [

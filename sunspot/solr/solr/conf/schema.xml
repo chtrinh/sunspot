@@ -84,6 +84,14 @@
     <fieldType name="tfloat" class="solr.TrieFloatField" omitNorms="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
     <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true"/>
+	  <fieldtype name="payloads" stored="false" indexed="true"
+      class="solr.TextField" omitNorms="true">
+      <analyzer>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.DelimitedPayloadTokenFilterFactory" 
+          delimiter="|" encoder="float"/>
+      </analyzer>
+    </fieldtype>
   </types>
   <fields>
     <!-- Valid attributes for fields:
@@ -123,6 +131,8 @@
     <field name="lat" stored="true" type="tdouble" multiValued="false" indexed="true"/>
     <!-- *** This field is used by Sunspot! *** -->
     <field name="lng" stored="true" type="tdouble" multiValued="false" indexed="true"/>
+    <!-- *** This dynamicField is used by Sunspot! *** -->
+    <dynamicField name="*_p" stored="true" type="payloads" multiValued="false" indexed="true"/>
     <!-- *** This dynamicField is used by Sunspot! *** -->
     <dynamicField name="random_*" stored="false" type="rand" multiValued="false" indexed="true"/>
     <!-- *** This dynamicField is used by Sunspot! *** -->
@@ -231,8 +241,9 @@
   <!-- field for the QueryParser to use when an explicit fieldname is absent -->
   <defaultSearchField>text</defaultSearchField>
   <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
-  <solrQueryParser defaultOperator="AND"/>
+  <solrQueryParser defaultOperator="OR"/>
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
+  <similarity class="org.apache.solr.search.ext.PayloadSimilarity" />
 </schema>
