@@ -27,21 +27,25 @@ namespace :sunspot do
     desc "Stop/Start/Reindex solr all in one shot"
     task :reboot => :environment do
       begin
-        Rake::Task[:"sunspot:solr:stop"].execute
+        Rake::Task[:"sunspot:solr:stop"].invoke
       rescue Sunspot::Rails::Server::NotRunningError => e
         puts e.message
         puts "No server to stop."
       ensure
         print "Starting server..."
-        Rake::Task[:"sunspot:solr:start"].execute
+        Rake::Task[:"sunspot:solr:start"].invoke
+
+        # Aryk: In order to avoid "MySQL server has gone away" on sunspot:reindex, we must reestablish
+        # the database connection. This is because sunspot:solr:start calls fork which I believe is
+        # screwing with the connection to the DB.
+        ActiveRecord::Base.establish_connection(Rails.env)
+
         puts "done"
       end
 
-# For some reason this rake task doesn't work, probably need to pass it some ENV variable
-#        print "Indexing server..."
-#        Rake::Task[:"sunspot:solr:reindex"].invoke
-#        puts "done"
-
+      print "Indexing server..."
+      Rake::Task[:"sunspot:reindex"].invoke
+      puts "done"
     end
   end
 
@@ -64,20 +68,17 @@ namespace :sunspot do
     case args[:batch_size]
     when 'false'
       reindex_options[:batch_size] = nil
-    when /^\d+$/ 
+    when /^\d+$/
       reindex_options[:batch_size] = args[:batch_size].to_i if args[:batch_size].to_i > 0
     end
-    unless args[:models]
+    sunspot_models = unless args[:models]
       models_path = Rails.root.join('app', 'models')
       all_files = Dir.glob(models_path.join('**', '*.rb'))
       all_models = all_files.map { |path| path.sub(models_path.to_s, '')[0..-4].camelize.sub(/^::/, '').constantize rescue nil }.compact
-      sunspot_models = all_models.select { |m| m < ActiveRecord::Base and m.searchable? }
+      all_models.select { |m| m < ActiveRecord::Base and m.searchable? }
     else
-      sunspot_models = args[:models].split('+').map{|m| m.constantize}
+      args[:models].split('+').map{ |m| m.constantize }
     end
-    sunspot_models.each do |model|
-      model.solr_reindex reindex_options
-    end
+    sunspot_models.each { |model| model.solr_reindex(reindex_options) }
   end
-  
 end
