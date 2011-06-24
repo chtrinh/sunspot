@@ -32,7 +32,7 @@ module Sunspot
           end
           say("Copying #{jar} => #{dest}")
           FileUtils.cp(jar, dest)
-                           end
+        end
       end
 
       def say(message)
