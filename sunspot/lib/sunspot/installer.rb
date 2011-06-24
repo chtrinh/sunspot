@@ -26,6 +26,7 @@ module Sunspot
         @options
       )
       LibraryInstaller.execute(File.join(@solr_home, 'lib'), @options)
+      SourceInstaller.execute(File.join(@solr_home, 'src'), @options)
     end
   end
 end
